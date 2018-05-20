@@ -76,11 +76,11 @@ class WebSocketConfiguration{
 
             val publisher = Flux.create(Consumer<FluxSink<WebSocketMessage>>{sink ->
                 connections[session.id] = ForwardingMessageHandler(session, sink )
-                incomingFileChannel().subscribe(connections[session.id])
+                connections[session.id]?.let { incomingFileChannel().subscribe(it) }
                                 })
                     .doFinally{
-                            incomingFileChannel().unsubscribe(connections[session.id])
-                        connections.remove(session.id);
+                            connections[session.id]?.let { it1 -> incomingFileChannel().unsubscribe(it1) }
+                        connections.remove(session.id)
                     }
             session.send(publisher)
 
